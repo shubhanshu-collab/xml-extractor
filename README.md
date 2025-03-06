@@ -17,7 +17,7 @@ This Python application processes XML files by extracting text data from section
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/xml-extractor.git
+git clone https://github.com/shubhanshu-collab/xml-extractor
 cd xml-extractor
 
 # Create Virtual Environment
