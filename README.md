@@ -32,13 +32,13 @@ pip install -e .
 
 ```bash
 # Basic usage
-python src/xml_extractor/main.py -i omdxe11330.xml
+python src/xml_extractor/main.py -i data/omdxe11330.xml
 
 # With explicit output file
-python src/xml_extractor/main.py -i omdxe11330.xml -o output.csv
+python src/xml_extractor/main.py -i data/omdxe11330.xml -o data/output.csv
 
 # With custom log file and verbose logging
-python src/xml_extractor/main.py -i omdxe11330.xml -l custom.log -v
+python src/xml_extractor/main.py -i data/omdxe11330.xml -l custom.log -v
 
 # Run Unittest
 python -m unittest discover -s tests
