@@ -74,5 +74,5 @@ xml_extractor/                # Root project directory
 
  ## Logging and Coverage
 
-   -The application uses Python's logging module to provide informative messages about the XML parsing process and CSV file  generation. These logs are output to the console.
-   -The application uses Python's coverage module to provide test coverage with more than 90% coverage for test cases.
+   - The application uses Python's logging module to provide informative messages about the XML parsing process and CSV file  generation. These logs are output to the console.
+   - The application uses Python's coverage module to provide test coverage with more than 90% coverage for test cases.
