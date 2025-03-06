@@ -41,7 +41,7 @@ class TestXmlExtractor(unittest.TestCase):
 
     def test_parse_xml_file(self):
         # Test parsing XML file
-        extractor = XmlExtractor("omdxe11330.xml")
+        extractor = XmlExtractor("data/omdxe11330.xml")
         extractor.tree = self.tree
         self.assertIsNotNone(extractor.tree)
 
