@@ -39,7 +39,7 @@ def main():
         logging.info("Starting XML processing")
         extractor = XmlExtractor(args.input)
         data = extractor.extract_structured_data()
-        extractor.save_to_csv(data, output_file)
+        extractor.save_to_readme(data, output_file)
         logging.info("XML processing completed successfully")
         print(f"CSV file '{output_file}' generated successfully.")
         return 0
