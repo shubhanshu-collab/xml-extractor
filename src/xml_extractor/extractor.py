@@ -69,8 +69,16 @@ class XmlExtractor:
                         'subsection': subsection_title,
                         'content': content
                     })
-
-        return data
+        # Generate README content
+        readme_lines = []
+        for item in data:
+            readme_lines.append(f"# {item['section']}")
+            if item['subsection']:
+                readme_lines.append(f"#### {item['subsection']}")
+            readme_lines.append(item['content'])
+            readme_lines.append("")  # Add a blank line for spacing                
+        readme_content = "\n".join(readme_lines)
+        return readme_content
 
     def _process_element_content(self, element):
         """
@@ -88,7 +96,7 @@ class XmlExtractor:
         for child in element.iter():
             if child.tag == "table":
                 inside_table = True
-                md_table = self._table_to_markdown(child)
+                md_table = self._table_to_html(child)
                 if md_table:
                     texts.append(md_table)
             elif child.tag == "para" and not inside_table:
@@ -100,15 +108,15 @@ class XmlExtractor:
 
         return "\n".join(texts)
 
-    def _table_to_markdown(self, table_element):
+    def _table_to_html(self, table_element):
         """
-        Convert an XML table to Markdown format.
+        Convert an XML table to HTML format with dynamic header adjustment and added styles.
 
         Args:
             table_element: XML table element to convert
 
         Returns:
-            str: Markdown representation of the table
+            str: HTML representation of the table
         """
         lines = []
 
@@ -116,43 +124,49 @@ class XmlExtractor:
         caption_elem = table_element.find("caption")
         if caption_elem is not None and caption_elem.text:
             caption = self._clean_text(caption_elem.text)
-            lines.append(f"**{caption}**")
-            lines.append("")  # blank line
+            lines.append(f"<h2 style='padding: 10px; text-align: center;'>{caption}</h2>")
 
         # Process header rows
-        header_rows = []
         thead = table_element.find("tgroup/thead")
         if thead is not None:
+            lines.append("<table style='border-collapse: collapse; width: 100%;'>")
+            lines.append("<thead>")
             for row in thead.findall("row"):
-                entries = []
-                for entry in row.findall("entry"):
+                lines.append("<tr>")
+                entries = row.findall("entry")
+                num_columns = len(table_element.find("tgroup/tbody/row/entry"))
+                total_entries = len(entries)
+                for i, entry in enumerate(entries):
                     para = entry.find("para")
                     text = self._clean_text(para.text) if (para is not None and para.text) else ""
-                    entries.append(text)
-                if entries:
-                    header_rows.append(" | ".join(entries))
+                    # Calculate colspan for each header based on scenarios
+                    if total_entries == 1:
+                        colspan = num_columns
+                    else:
+                        body_columns = len(table_element.find("tgroup/tbody/row/entry"))
+                        body_rows = len(table_element.find("tgroup/tbody/row"))
+                        body_entries = body_columns * body_rows
+                        colspan = body_entries // total_entries
+                        if i == total_entries - 1:
+                            colspan += body_entries % total_entries
+                    lines.append(f"<th colspan='{colspan}' style='padding: 8px; border: 1px solid #ddd; background: #ffffcc'>{text}</th>")
+                lines.append("</tr>")
+            lines.append("</thead>")
 
-            if header_rows:
-                lines.append("**Header:**")
-                lines.extend(header_rows)
-                lines.append("")
+            # Process body rows
+            tbody = table_element.find("tgroup/tbody")
+            if tbody is not None:
+                lines.append("<tbody>")
+                for row in tbody.findall("row"):
+                    lines.append("<tr>")
+                    for entry in row.findall("entry"):
+                        para = entry.find("para")
+                        text = self._clean_text(para.text) if (para is not None and para.text) else ""
+                        lines.append(f"<td style='padding: 8px; border: 1px solid #ddd; background: #f2f2f2'>{text}</td>")
+                    lines.append("</tr>")
+                lines.append("</tbody>")
 
-        # Process body rows
-        body_rows = []
-        tbody = table_element.find("tgroup/tbody")
-        if tbody is not None:
-            for row in tbody.findall("row"):
-                entries = []
-                for entry in row.findall("entry"):
-                    para = entry.find("para")
-                    text = self._clean_text(para.text) if (para is not None and para.text) else ""
-                    entries.append(text)
-                if entries:
-                    body_rows.append(" | ".join(entries))
-
-            if body_rows:
-                lines.append("**Rows:**")
-                lines.extend(body_rows)
+            lines.append("</table>")
 
         markup = "\n".join(lines)
         logging.debug(f"Converted table markup: {markup[:60]}...")
@@ -199,4 +213,19 @@ class XmlExtractor:
         except Exception as e:
             logging.error(f"Error writing CSV file: {e}")
             raise
+
+
+    def save_to_readme(self, data, output_file):
+        """
+        Write the extracted data to a CSV file.
+
+        Args:
+            data: List of dictionaries with keys: 'section', 'subsection', and 'content'
+            output_file: Path to the output CSV file
+        """
+        try:
+            with open(output_file, mode="w", encoding="utf-8") as readme_file:
+                readme_file.write(data)
+        except Exception as e:
+            raise   
  
