@@ -35,7 +35,7 @@ pip install -e .
 python src/xml_extractor/main.py -i data/omdxe11330.xml
 
 # With explicit output file
-python src/xml_extractor/main.py -i data/omdxe11330.xml -o data/output.csv
+python src/xml_extractor/main.py -i data/omdxe11330.xml -o data/output.md
 
 # With custom log file and verbose logging
 python src/xml_extractor/main.py -i data/omdxe11330.xml -l custom.log -v
